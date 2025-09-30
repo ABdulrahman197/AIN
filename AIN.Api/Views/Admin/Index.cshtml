@@ -1,0 +1,92 @@
+@model IEnumerable<AIN.Core.Entites.Report>
+
+@{
+    ViewData["Title"] = "لوحة الإدارة";
+}
+<div class="d-flex align-items-center justify-content-between mb-3">
+	<h2 class="h4 m-0">لوحة الإدارة</h2>
+	
+</div>
+
+@* <div class="p-3 bg-white rounded shadow-sm mb-3">
+	<form class="row g-2" method="get">
+		<div class="col-6 col-md-3">
+			<label class="form-label">الحالة</label>
+			<select name="status" class="form-select">
+				<option value="">الكل</option>
+				<option value="Pending" selected>قيد الانتظار</option>
+				<option value="Approved">معتمد</option>
+				<option value="Rejected">مرفوض</option>
+				<option value="Dispatched">موجّه</option>
+				<option value="Resolved">محلول</option>
+			</select>
+		</div>
+		<div class="col-6 col-md-3">
+			<label class="form-label">التصنيف</label>
+			<input name="category" class="form-control" value="@ViewBag.Category" />
+		</div>
+		<div class="col-6 col-md-3">
+			<label class="form-label">الأولوية</label>
+			<input name="priority" class="form-control" value="@ViewBag.Priority" />
+		</div>
+		<div class="col-6 col-md-3">
+			<label class="form-label">بحث</label>
+			<input name="search" class="form-control" value="@ViewBag.Search" placeholder="عنوان/وصف" />
+		</div>
+		<div class="col-12 d-flex justify-content-end">
+			<button class="btn btn-primary">تصفية</button>
+		</div>
+	</form>
+</div>
+ *@
+
+
+
+<table class="table table-striped table-bordered bg-white">
+    <thead>
+        <tr>
+            <th>التاريخ</th>
+            <th>العنوان</th>
+            <th>التصنيف</th>
+            <th>الحالة</th>
+            <th>المبلِّغ</th>
+            <th>الظهور</th>
+        </tr>
+    </thead>
+    <tbody>
+    @foreach (var r in Model)
+    {
+        <tr>
+            <td>@r.CreatedAt.LocalDateTime</td>
+            <td><a href="@Url.Action("Details", "Admin", new { id = r.Id })">@r.Title</a></td>
+            <td>@r.Category</td>
+            <td>@r.Status</td>
+            <td>@(r.Reporter?.DisplayName ?? "-")</td>
+            <td>
+                @switch (r.Visibility)
+                {
+                    case AIN.Core.Enums.enums.ReportVisibility.Public:
+                        @:<span class="badge bg-success-subtle text-success">عامة</span>
+                        break;
+                    case AIN.Core.Enums.enums.ReportVisibility.Confidential:
+                        @:<span class="badge bg-warning-subtle text-warning">سري</span>
+                        break;
+                    case AIN.Core.Enums.enums.ReportVisibility.Anonymous:
+                        @:<span class="badge bg-secondary">مجهول</span>
+                        break;
+                }
+            </td>
+        </tr>
+    }
+    </tbody>
+ </table>
+
+<div class="d-flex justify-content-between align-items-center">
+	<div>الصفحة @ViewBag.Page</div>
+	<div class="d-flex gap-2">
+		<a class="btn btn-outline-secondary btn-sm" href="@Url.Action("Index", new { page = (int)ViewBag.Page - 1 <= 0 ? 1 : (int)ViewBag.Page - 1, pageSize = (int)ViewBag.PageSize, status = ViewBag.Status, category = ViewBag.Category, priority = ViewBag.Priority, search = ViewBag.Search })">السابق</a>
+		<a class="btn btn-outline-secondary btn-sm" href="@Url.Action("Index", new { page = (int)ViewBag.Page + 1, pageSize = (int)ViewBag.PageSize, status = ViewBag.Status, category = ViewBag.Category, priority = ViewBag.Priority, search = ViewBag.Search })">التالي</a>
+	</div>
+</div>
+
+

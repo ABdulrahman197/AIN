@@ -1,0 +1,83 @@
+@model AIN.Application.Dtos.ReportWithInteractionsResponse
+@{
+    ViewData["Title"] = "تفاصيل البلاغ (الإدارة)";
+}
+
+<div class="row g-3">
+	<div class="col-12 col-lg-8">
+		<div class="p-3 bg-white rounded shadow-sm mb-3">
+			<h2 class="h5 mb-2">@Model.Title</h2>
+			<div class="text-muted mb-2">@Model.Category • @Model.CreatedAt.LocalDateTime</div>
+			<div class="d-flex gap-2 align-items-center small">
+				<strong>المبلِّغ:</strong>
+				<span>@(Model.ReporterDisplayName ?? "-")</span>
+				<span class="ms-3">
+					<strong>الظهور:</strong>
+					@switch (Model.Visibility)
+					{
+						case AIN.Core.Enums.enums.ReportVisibility.Public:
+							@:<span class="badge bg-success-subtle text-success">عامة</span>
+							break;
+						case AIN.Core.Enums.enums.ReportVisibility.Confidential:
+							@:<span class="badge bg-warning-subtle text-warning">سري</span>
+							break;
+						case AIN.Core.Enums.enums.ReportVisibility.Anonymous:
+							@:<span class="badge bg-secondary">مجهول</span>
+							break;
+					}
+				</span>
+			</div>
+			<p class="mb-0">@Model.Description</p>
+		</div>
+
+		<div class="p-3 bg-white rounded shadow-sm mb-3">
+			<h3 class="h6 mb-3">التفاعلات</h3>
+			<div class="small text-muted">عدد الإعجابات: @Model.LikeCount</div>
+			<div class="small text-muted">عدد التعليقات: @Model.CommentCount</div>
+		</div>
+
+		<div class="p-3 bg-white rounded shadow-sm">
+			<h3 class="h6 mb-3">التعليقات</h3>
+			<ul class="list-group">
+				@foreach (var c in Model.RecentComments)
+				{
+					<li class="list-group-item">
+						<div class="d-flex justify-content-between">
+							<strong>@c.UserDisplayName</strong>
+							<small class="text-muted">@c.CreatedAt.Year</small>
+						</div>
+						<div>@c.Content</div>
+					</li>
+				}
+			</ul>
+		</div>
+	</div>
+
+	<div class="col-12 col-lg-4">
+		<div class="p-3 bg-white rounded shadow-sm mb-3">
+			<h3 class="h6 mb-2">الملفات</h3>
+			@if (Model.Attachments?.Any() == true)
+			{
+				<ul class="list-unstyled small mb-0">
+					@foreach (var a in Model.Attachments)
+					{
+						<li><a href="@a.Url" target="_blank">@a.FileName</a></li>
+					}
+				</ul>
+			}
+			else
+			{
+				<div class="text-muted small">لا توجد ملفات</div>
+			}
+		</div>
+		<div class="p-3 bg-white rounded shadow-sm mb-3">
+			<h3 class="h6 mb-2">إحصائيات</h3>
+			<ul class="list-unstyled mb-0 small">
+				<li>عدد الإعجابات: @Model.LikeCount</li>
+				<li>عدد التعليقات: @Model.CommentCount</li>
+			</ul>
+		</div>
+	</div>
+</div>
+
+

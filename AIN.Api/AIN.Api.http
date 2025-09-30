@@ -1,0 +1,6 @@
+@AIN.Api_HostAddress = http://localhost:5177
+
+GET {{AIN.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

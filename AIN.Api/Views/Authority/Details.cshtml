@@ -1,0 +1,231 @@
+@model AIN.Application.Dtos.ReportWithInteractionsResponse
+@{
+    ViewData["Title"] = "تفاصيل البلاغ";
+}
+
+<div class="row g-3">
+	<div class="col-12 col-lg-8">
+		<div class="p-3 bg-white rounded shadow-sm mb-3">
+			<h2 class="h5 mb-2">@Model.Title</h2>
+			<div class="text-muted mb-2">@Model.Category • @Model.CreatedAt.LocalDateTime</div>
+			<div class="row g-3 mb-3">
+				<div class="col-md-6">
+					<div class="d-flex gap-2 align-items-center small">
+						<strong>المبلِّغ:</strong>
+						<span>
+							@{
+								var nameForAuthority = Model.Visibility == AIN.Core.Enums.enums.ReportVisibility.Anonymous
+									? "مجهول"
+									: (Model.ReporterDisplayName ?? "-");
+							}
+							@nameForAuthority
+						</span>
+					</div>
+				</div>
+				<div class="col-md-6">
+					<div class="d-flex gap-2 align-items-center small">
+						<strong>الظهور:</strong>
+						@switch (Model.Visibility)
+						{
+							case AIN.Core.Enums.enums.ReportVisibility.Public:
+								@:<span class="badge bg-success">عامة</span>
+								break;
+							case AIN.Core.Enums.enums.ReportVisibility.Confidential:
+								@:<span class="badge bg-warning">سري</span>
+								break;
+							case AIN.Core.Enums.enums.ReportVisibility.Anonymous:
+								@:<span class="badge bg-secondary">مجهول</span>
+								break;
+						}
+					</div>
+				</div>
+				<div class="col-md-6">
+					<div class="d-flex gap-2 align-items-center small">
+						<strong>التصنيف:</strong>
+						@switch (Model.Category)
+						{
+							case AIN.Core.Enums.enums.ReportCategory.Security:
+								<span class="badge bg-danger">أمن</span>
+								break;
+							case AIN.Core.Enums.enums.ReportCategory.PublicSafety:
+								<span class="badge bg-warning">السلامة والطوارئ</span>
+								break;
+							case AIN.Core.Enums.enums.ReportCategory.Traffic:
+								<span class="badge bg-info">مرور</span>
+								break;
+							case AIN.Core.Enums.enums.ReportCategory.Environment:
+								<span class="badge bg-success">بيئة</span>
+								break;
+							case AIN.Core.Enums.enums.ReportCategory.Other:
+								<span class="badge bg-secondary">أخرى</span>
+								break;
+						}
+					</div>
+				</div>
+				<div class="col-md-6">
+					<div class="d-flex gap-2 align-items-center small">
+						<strong>الموقع:</strong>
+						@if (Model.Latitude != 0 && Model.Longitude != 0)
+						{
+							<a href="https://www.google.com/maps?q=@Model.Latitude,@Model.Longitude" target="_blank" class="btn btn-sm btn-outline-primary">
+								<i class="fas fa-map-marker-alt"></i> عرض الموقع
+							</a>
+						}
+						else
+						{
+							<span class="text-muted">غير محدد</span>
+						}
+					</div>
+				</div>
+			</div>
+			<p class="mb-0">@Model.Description</p>
+		</div>
+
+		<div class="p-3 bg-white rounded shadow-sm mb-3">
+			<h3 class="h6 mb-3">الحالة</h3>
+			<div class="mb-3">
+				<strong>الحالة الحالية:</strong>
+				@switch (Model.Status)
+				{
+					case AIN.Core.Enums.enums.ReportStatus.Pending:
+						<span class="badge bg-secondary">قيد الانتظار</span>
+						break;
+					case AIN.Core.Enums.enums.ReportStatus.InReview:
+						<span class="badge bg-info">قيد المراجعة</span>
+						break;
+					case AIN.Core.Enums.enums.ReportStatus.Dispatched:
+						<span class="badge bg-warning">قيد الإحالة</span>
+						break;
+					case AIN.Core.Enums.enums.ReportStatus.Resolved:
+						<span class="badge bg-success">تم الحل</span>
+						break;
+					case AIN.Core.Enums.enums.ReportStatus.Rejected:
+						<span class="badge bg-danger">مرفوض</span>
+						break;
+					default:
+						<span class="badge bg-secondary">@Model.Status</span>
+						break;
+				}
+			</div>
+			<form method="post" action="@Url.Action("Status", "Authority", new { id = Model.Id })">
+				@Html.AntiForgeryToken()
+				<div class="d-flex gap-2 flex-wrap">
+					@if (Model.Status != AIN.Core.Enums.enums.ReportStatus.InReview)
+					{
+						<button name="status" value="InReview" class="btn btn-outline-info btn-sm">قيد المراجعة</button>
+					}
+					@if (Model.Status != AIN.Core.Enums.enums.ReportStatus.Dispatched)
+					{
+						<button name="status" value="Dispatched" class="btn btn-outline-warning btn-sm">قيد الإحالة</button>
+					}
+					@if (Model.Status != AIN.Core.Enums.enums.ReportStatus.Resolved)
+					{
+						<button name="status" value="Resolved" class="btn btn-outline-success btn-sm">تم الحل</button>
+					}
+					@if (Model.Status != AIN.Core.Enums.enums.ReportStatus.Rejected)
+					{
+						<button name="status" value="Rejected" class="btn btn-outline-danger btn-sm">رفض</button>
+					}
+					@if (Model.Status != AIN.Core.Enums.enums.ReportStatus.Pending)
+					{
+						<button name="status" value="Pending" class="btn btn-outline-secondary btn-sm">قيد الانتظار</button>
+					}
+				</div>
+			</form>
+		</div>
+
+		<div class="p-3 bg-white rounded shadow-sm mb-3">
+			<h3 class="h6 mb-3">التفاعلات</h3>
+			<form method="post" action="@Url.Action("Like", "Authority", new { id = Model.Id })" class="mb-2">
+				@Html.AntiForgeryToken()
+				<button class="btn btn-sm @(Model.IsLikedByCurrentUser ? "btn-success" : "btn-outline-success")">
+					إعجاب (@Model.LikeCount)
+				</button>
+			</form>
+			<div class="small text-muted">عدد التعليقات: @Model.CommentCount</div>
+		</div>
+
+		<div class="p-3 bg-white rounded shadow-sm">
+			<h3 class="h6 mb-3">التعليقات</h3>
+			<form method="post" action="@Url.Action("Comment", "Authority", new { id = Model.Id })" class="mb-3">
+				@Html.AntiForgeryToken()
+				<div class="input-group">
+					<input name="content" class="form-control" placeholder="أضف تعليقًا" required />
+					<button class="btn btn-primary">إرسال</button>
+				</div>
+			</form>
+
+			<ul class="list-group">
+				@foreach (var c in Model.RecentComments)
+				{
+					<li class="list-group-item">
+						<div class="d-flex justify-content-between">
+							<strong>@c.UserDisplayName</strong>
+							<small class="text-muted">@c.CreatedAt.ToString("dd/MM/yyyy HH:mm")</small>
+						</div>
+						<div>@c.Content</div>
+					</li>
+				}
+			</ul>
+		</div>
+	</div>
+
+	<div class="col-12 col-lg-4">
+		<div class="p-3 bg-white rounded shadow-sm mb-3">
+			<h3 class="h6 mb-2">إحصائيات الجهة</h3>
+			<ul class="list-unstyled mb-0 small">
+				<li>عدد الإعجابات: @Model.LikeCount</li>
+				<li>عدد التعليقات: @Model.CommentCount</li>
+			</ul>
+		</div>
+
+		<div class="p-3 bg-white rounded shadow-sm">
+			<h3 class="h6 mb-2">الملفات</h3>
+			@if (Model.Attachments?.Any() == true)
+			{
+				<ul class="list-unstyled small mb-0">
+					@foreach (var a in Model.Attachments)
+					{
+						<li><a href="@a.Url" target="_blank">@a.FileName</a></li>
+					}
+				</ul>
+			}
+			else
+			{
+				<div class="text-muted small">لا توجد ملفات</div>
+			}
+		</div>
+	</div>
+</div>
+
+<!-- Font Awesome for icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+<!-- Custom CSS for better styling -->
+<style>
+    .card {
+        border: none;
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    }
+    
+    .badge {
+        font-size: 0.75em;
+        padding: 0.375rem 0.75rem;
+    }
+    
+    .btn-outline-primary:hover {
+        background-color: #0d6efd;
+        border-color: #0d6efd;
+    }
+    
+    .list-group-item {
+        border: 1px solid rgba(0, 0, 0, 0.125);
+    }
+    
+    .text-primary { color: #0d6efd !important; }
+    .text-secondary { color: #6c757d !important; }
+    .text-info { color: #0dcaf0 !important; }
+    .text-warning { color: #ffc107 !important; }
+    .text-success { color: #198754 !important; }
+    .text-danger { color: #dc3545 !important; }
+</style>

@@ -1,0 +1,29 @@
+@model AIN.Application.Dtos.LoginRequest
+@{
+    ViewData["Title"] = "تسجيل الدخول";
+}
+<div class="row justify-content-center">
+	<div class="col-12 col-md-5">
+		<div class="p-4 bg-white rounded shadow-sm">
+			<h1 class="h5 mb-3">تسجيل الدخول</h1>
+			<form method="post">
+				@Html.AntiForgeryToken()
+				<div class="mb-3">
+					<label class="form-label">البريد الإلكتروني</label>
+					<input name="Email" type="email" class="form-control" required />
+				</div>
+				<div class="mb-3">
+					<label class="form-label">كلمة المرور</label>
+					<input name="Password" type="password" class="form-control" required />
+				</div>
+				<button class="btn btn-primary w-100">دخول</button>
+			</form>
+			@if (!ViewData.ModelState.IsValid)
+			{
+				<div class="alert alert-danger mt-3">@ViewData.ModelState.Values.SelectMany(v => v.Errors).FirstOrDefault()?.ErrorMessage</div>
+			}
+		</div>
+	</div>
+</div>
+
+

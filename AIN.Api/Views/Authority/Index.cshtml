@@ -1,0 +1,399 @@
+@model AIN.Api.Models.AuthorityDashboardViewModel
+@{
+    ViewData["Title"] = "لوحة تحكم الجهة المختصة";
+}
+
+<div class="d-flex align-items-center justify-content-between mb-4">
+    <h2 class="h4 m-0">لوحة تحكم الجهة المختصة</h2>
+</div>
+
+@if (ViewBag.Warning != null)
+{
+    <div class="alert alert-warning">@ViewBag.Warning</div>
+}
+
+<!-- Report Status Summary Cards -->
+<div class="row g-3 mb-4">
+    <div class="col-6 col-md-2">
+        <div class="card text-center border-0 shadow-sm">
+            <div class="card-body">
+                <div class="text-muted small">إجمالي البلاغات</div>
+                <div class="h3 m-0 text-primary">@Model.Summary.TotalReports</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-2">
+        <div class="card text-center border-0 shadow-sm">
+            <div class="card-body">
+                <div class="text-muted small">قيد الانتظار</div>
+                <div class="h3 m-0 text-secondary">@Model.Summary.PendingCount</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-2">
+        <div class="card text-center border-0 shadow-sm">
+            <div class="card-body">
+                <div class="text-muted small">قيد المراجعة</div>
+                <div class="h3 m-0 text-info">@Model.Summary.InReviewCount</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-2">
+        <div class="card text-center border-0 shadow-sm">
+            <div class="card-body">
+                <div class="text-muted small">قيد الإحالة</div>
+                <div class="h3 m-0 text-warning">@Model.Summary.DispatchedCount</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-2">
+        <div class="card text-center border-0 shadow-sm">
+            <div class="card-body">
+                <div class="text-muted small">تم الحل</div>
+                <div class="h3 m-0 text-success">@Model.Summary.ResolvedCount</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-2">
+        <div class="card text-center border-0 shadow-sm">
+            <div class="card-body">
+                <div class="text-muted small">مرفوض</div>
+                <div class="h3 m-0 text-danger">@Model.Summary.RejectedCount</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Filtering and Search Section -->
+<div class="card mb-4">
+    <div class="card-header">
+        <h5 class="card-title mb-0">فلترة والبحث</h5>
+    </div>
+    <div class="card-body">
+        <form method="get" class="row g-3">
+            <div class="col-md-3">
+                <label class="form-label">البحث</label>
+                <input type="text" name="searchTerm" class="form-control" placeholder=" اسم المبلغ" value="@Model.Filter.SearchTerm">
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">الحالة</label>
+                <select name="statusFilter" class="form-select">
+                    <option value="">جميع الحالات</option>
+                    <option value="Pending" @(Model.Filter.StatusFilter?.ToString() == "Pending" ? "selected" : "")>قيد الانتظار</option>
+                    <option value="InReview" @(Model.Filter.StatusFilter?.ToString() == "InReview" ? "selected" : "")>قيد المراجعة</option>
+                    <option value="Dispatched" @(Model.Filter.StatusFilter?.ToString() == "Dispatched" ? "selected" : "")>قيد الإحالة</option>
+                    <option value="Resolved" @(Model.Filter.StatusFilter?.ToString() == "Resolved" ? "selected" : "")>تم الحل</option>
+                    <option value="Rejected" @(Model.Filter.StatusFilter?.ToString() == "Rejected" ? "selected" : "")>مرفوض</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">التصنيف</label>
+                <select name="categoryFilter" class="form-select">
+                    <option value="">جميع التصنيفات</option>
+                    <option value="Security" @(Model.Filter.CategoryFilter?.ToString() == "Security" ? "selected" : "")>أمن</option>
+                    <option value="PublicSafety" @(Model.Filter.CategoryFilter?.ToString() == "PublicSafety" ? "selected" : "")>السلامةوالطوارئ</option>
+                    <option value="Traffic" @(Model.Filter.CategoryFilter?.ToString() == "Traffic" ? "selected" : "")>مرور</option>
+                    <option value="Environment" @(Model.Filter.CategoryFilter?.ToString() == "Environment" ? "selected" : "")>بيئة</option>
+                    <option value="Other" @(Model.Filter.CategoryFilter?.ToString() == "Other" ? "selected" : "")>أخرى</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">من تاريخ</label>
+                <input type="date" name="startDate" class="form-control" value="@Model.Filter.StartDate?.ToString("yyyy-MM-dd")">
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">إلى تاريخ</label>
+                <input type="date" name="endDate" class="form-control" value="@Model.Filter.EndDate?.ToString("yyyy-MM-dd")">
+            </div>
+            <div class="col-md-1 d-flex align-items-end">
+                <button type="submit" class="btn btn-primary w-100">بحث</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Reports Table -->
+<div class="card">
+    <div class="card-header">
+        <h5 class="card-title mb-0">قائمة البلاغات</h5>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>التاريخ والوقت</th>
+                        <th>عنوان البلاغ</th>
+                        <th>الموقع</th>
+                        <th>المبلغ</th>
+                        <th>نوع الظهور</th>
+                        <th>التصنيف</th>
+                        <th>الحالة</th>
+                        <th>الإجراءات</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var r in Model.Reports)
+                    {
+                        <tr>
+                            <td>
+                                <div class="small text-muted">@r.CreatedAt.ToString("dd/MM/yyyy")</div>
+                                <div class="small">@r.CreatedAt.ToString("HH:mm")</div>
+                            </td>
+                            <td>
+                                <a href="@Url.Action("Details", "Authority", new { id = r.Id })" class="text-decoration-none fw-medium">
+                                    @r.Title
+                                </a>
+                            </td>
+                            <td>
+                                @if (r.Latitude != 0 && r.Longitude != 0)
+                                {
+                                    <a href="https://www.google.com/maps?q=@r.Latitude,@r.Longitude" target="_blank" class="btn btn-sm btn-outline-primary">
+                                        <i class="fas fa-map-marker-alt"></i> عرض الموقع
+                                    </a>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">غير محدد</span>
+                                }
+                            </td>
+                            <td>
+                                @if (r.Visibility == AIN.Core.Enums.enums.ReportVisibility.Anonymous)
+                                {
+                                    <span class="text-muted">مجهول</span>
+                                }
+                                else
+                                {
+                                    @(r.Reporter?.DisplayName ?? "-")
+                                }
+                            </td>
+                            <td>
+                                @switch (r.Visibility)
+                                {
+                                    case AIN.Core.Enums.enums.ReportVisibility.Public:
+                                        <span class="badge bg-success">عامة</span>
+                                        break;
+                                    case AIN.Core.Enums.enums.ReportVisibility.Confidential:
+                                        <span class="badge bg-warning">سري</span>
+                                        break;
+                                    case AIN.Core.Enums.enums.ReportVisibility.Anonymous:
+                                        <span class="badge bg-secondary">مجهول</span>
+                                        break;
+                                }
+                            </td>
+                            <td>
+                                @switch (r.Category)
+                                {
+                                    case AIN.Core.Enums.enums.ReportCategory.Security:
+                                        <span class="badge bg-danger">أمن</span>
+                                        break;
+                                    case AIN.Core.Enums.enums.ReportCategory.PublicSafety:
+                                        <span class="badge bg-warning">السلامةوالطوارئ</span>
+                                        break;
+                                    case AIN.Core.Enums.enums.ReportCategory.Traffic:
+                                        <span class="badge bg-info">مرور</span>
+                                        break;
+                                    case AIN.Core.Enums.enums.ReportCategory.Environment:
+                                        <span class="badge bg-success">بيئة</span>
+                                        break;
+                                    case AIN.Core.Enums.enums.ReportCategory.Other:
+                                        <span class="badge bg-secondary">أخرى</span>
+                                        break;
+                                }
+                            </td>
+                            <td>
+                                @switch (r.Status)
+                                {
+                                    case AIN.Core.Enums.enums.ReportStatus.Pending:
+                                        <span class="badge bg-secondary">قيد الانتظار</span>
+                                        break;
+                                    case AIN.Core.Enums.enums.ReportStatus.InReview:
+                                        <span class="badge bg-info">قيد المراجعة</span>
+                                        break;
+                                    case AIN.Core.Enums.enums.ReportStatus.Dispatched:
+                                        <span class="badge bg-warning">قيد الإحالة</span>
+                                        break;
+                                    case AIN.Core.Enums.enums.ReportStatus.Resolved:
+                                        <span class="badge bg-success">تم الحل</span>
+                                        break;
+                                    case AIN.Core.Enums.enums.ReportStatus.Rejected:
+                                        <span class="badge bg-danger">مرفوض</span>
+                                        break;
+                                }
+                            </td>
+                            <td>
+                                <div class="d-flex gap-1">
+                                    <select class="form-select form-select-sm status-select" data-report-id="@r.Id" style="width: 120px;">
+                                        <option value="">تغيير الحالة</option>
+                                        @if (r.Status != AIN.Core.Enums.enums.ReportStatus.InReview)
+                                        {
+                                            <option value="InReview">قيد المراجعة</option>
+                                        }
+                                        @if (r.Status != AIN.Core.Enums.enums.ReportStatus.Dispatched)
+                                        {
+                                            <option value="Dispatched">قيد الإحالة</option>
+                                        }
+                                        @if (r.Status != AIN.Core.Enums.enums.ReportStatus.Resolved)
+                                        {
+                                            <option value="Resolved">تم الحل</option>
+                                        }
+                                        @if (r.Status != AIN.Core.Enums.enums.ReportStatus.Rejected)
+                                        {
+                                            <option value="Rejected">مرفوض</option>
+                                        }
+                                    </select>
+                                    <button class="btn btn-sm btn-primary update-status-btn" data-report-id="@r.Id" disabled>
+                                        تحديث
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- JavaScript for AJAX Status Updates -->
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Enable/disable update button based on selection
+            $('.status-select').on('change', function() {
+                var reportId = $(this).data('report-id');
+                var updateBtn = $('.update-status-btn[data-report-id="' + reportId + '"]');
+                
+                if ($(this).val()) {
+                    updateBtn.prop('disabled', false);
+                } else {
+                    updateBtn.prop('disabled', true);
+                }
+            });
+
+            // Handle status update
+            $('.update-status-btn').on('click', function() {
+                var reportId = $(this).data('report-id');
+                var statusSelect = $('.status-select[data-report-id="' + reportId + '"]');
+                var newStatus = statusSelect.val();
+                
+                if (!newStatus) {
+                    alert('يرجى اختيار حالة جديدة');
+                    return;
+                }
+
+                // Show loading state
+                var originalText = $(this).text();
+                $(this).prop('disabled', true).text('جاري التحديث...');
+
+                // Make AJAX request
+                $.ajax({
+                    url: '@Url.Action("UpdateStatus", "Authority")',
+                    type: 'POST',
+                    data: {
+                        id: reportId,
+                        status: newStatus
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            // Show success message
+                            showAlert('success', response.message);
+                            
+                            // Reload the page to update the UI
+                            setTimeout(function() {
+                                location.reload();
+                            }, 1000);
+                        } else {
+                            showAlert('error', response.message);
+                        }
+                    },
+                    error: function() {
+                        showAlert('error', 'حدث خطأ في الاتصال بالخادم');
+                    },
+                    complete: function() {
+                        // Reset button state
+                        $('.update-status-btn[data-report-id="' + reportId + '"]')
+                            .prop('disabled', false)
+                            .text(originalText);
+                    }
+                });
+            });
+
+            // Function to show alerts
+            function showAlert(type, message) {
+                var alertClass = type === 'success' ? 'alert-success' : 'alert-danger';
+                var alertHtml = '<div class="alert ' + alertClass + ' alert-dismissible fade show" role="alert">' +
+                    message +
+                    '<button type="button" class="btn-close" data-bs-dismiss="alert"></button>' +
+                    '</div>';
+                
+                // Remove existing alerts
+                $('.alert').remove();
+                
+                // Add new alert at the top
+                $('.container-fluid').prepend(alertHtml);
+                
+                // Auto-hide after 5 seconds
+                setTimeout(function() {
+                    $('.alert').fadeOut();
+                }, 5000);
+            }
+        });
+    </script>
+
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+}
+
+<!-- Custom CSS for better styling -->
+<style>
+    .card {
+        border: none;
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    }
+    
+    .table th {
+        border-top: none;
+        font-weight: 600;
+        color: #495057;
+    }
+    
+    .badge {
+        font-size: 0.75em;
+        padding: 0.375rem 0.75rem;
+    }
+    
+    .status-select {
+        font-size: 0.875rem;
+    }
+    
+    .update-status-btn {
+        font-size: 0.875rem;
+        padding: 0.25rem 0.5rem;
+    }
+    
+    .btn-outline-primary:hover {
+        background-color: #0d6efd;
+        border-color: #0d6efd;
+    }
+    
+    .table-hover tbody tr:hover {
+        background-color: rgba(0, 0, 0, 0.025);
+    }
+    
+    .text-primary { color: #0d6efd !important; }
+    .text-secondary { color: #6c757d !important; }
+    .text-info { color: #0dcaf0 !important; }
+    .text-warning { color: #ffc107 !important; }
+    .text-success { color: #198754 !important; }
+    .text-danger { color: #dc3545 !important; }
+</style>
+
+
+
+
+
+
+
+
+

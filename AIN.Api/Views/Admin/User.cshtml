@@ -1,0 +1,26 @@
+@model AIN.Application.Dtos.AdminUserResponse
+@{
+    ViewData["Title"] = "تعديل مستخدم";
+}
+<div class="p-3 bg-white rounded shadow-sm">
+	<h2 class="h5 mb-3">@Model.DisplayName</h2>
+	<form method="post" action="@Url.Action("UpdateUser", "Admin", new { id = Model.Id })" class="row g-3">
+		@Html.AntiForgeryToken()
+		<div class="col-12 col-md-6">
+			<label class="form-label">الاسم</label>
+			<input name="DisplayName" class="form-control" value="@Model.DisplayName" />
+		</div>
+		<div class="col-12 col-md-6">
+			<label class="form-label">البريد</label>
+			<input name="Email" class="form-control" value="@Model.Email" />
+		</div>
+		<div class="col-12 col-md-6">
+			<label class="form-label">النقاط</label>
+			<input name="TrustPoints" type="number" class="form-control" value="@Model.TrustPoints" />
+		</div>
+		<div class="col-12">
+			<button class="btn btn-primary">حفظ</button>
+			<a class="btn btn-secondary" href="@Url.Action("Users", "Admin")">إلغاء</a>
+		</div>
+	</form>
+</div>
