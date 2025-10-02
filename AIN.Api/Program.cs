@@ -198,7 +198,7 @@ using (var scope = app.Services.CreateScope())
         );
         await db.SaveChangesAsync();
     }
-//db.Set<UserAccount>().Add(new UserAccount { Id = Guid.NewGuid(), DisplayName = "Author", Email = "abdu1973200422@gmail.com", PasswordHash = BCrypt.Net.BCrypt.HashPassword("Abdu2004##"), Role = enums.UserRole.Authority , IsEmailConfirmed = true, TrustPoints = 50, Badge = enums.TrustBadge.Trusted , });
+//db.Set<UserAccount>().Add(new UserAccount { Id = Guid.NewGuid(), DisplayName = "Author", Email = "Authority@ain.com", PasswordHash = BCrypt.Net.BCrypt.HashPassword("Authority@123"), Role = enums.UserRole.Authority , IsEmailConfirmed = true, TrustPoints = 50, Badge = enums.TrustBadge.Trusted , });
 }
 // -----------------------------
 using (var scope = app.Services.CreateScope())
