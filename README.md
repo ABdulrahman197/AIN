@@ -65,7 +65,7 @@ With AI vision models, the system could **detect weapons, dangerous behavior, or
 
 | Layer | Hosting / Setup |
 |--------|----------------|
-| API | Deploy on IIS / Cloud (Azure, AWS, MonsterASP.NET) |
+| API | Deploy on  (MonsterASP.NET) |
 | Database | SQL Server + Redis (cache/session) |
 | Mobile | Published to App Stores or distributed internally |
 | Dashboard | Hosted alongside API or as independent front-end |
@@ -88,19 +88,7 @@ Key endpoints include:
 
 ---
 
-## 👥 Ownership & Collaboration
 
-This repository is **private**, but may be **shared with partner organizations or technical contributors as needed**.
-
-For coordination or integration discussions, please contact:
-
-**[Your Name / Team / Email]**
-
----
-
-## 📌 Disclaimer
-
-This project is currently under active development. Some features listed — especially AI-assisted monitoring — are **future proposals** and should be treated as conceptual unless explicitly enabled.
 
 ---
 
